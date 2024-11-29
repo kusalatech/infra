@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  traefik:
+    image: traefik:v3.2
+    command: --api.insecure=true --providers.docker # --providers.swarm.endpoint=tcp://127.0.0.1:2377
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      # So that Traefik can listen to the Docker events
+      - /var/run/docker.sock:/var/run/docker.sock
+    #volumes:
+    #  - ./traefik.toml:/etc/traefik/traefik.toml
+    #  - ./acme.json:/etc/traefik/acme.json
+
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+
+    networks:
+      - traefik-net
+  # NOTE: this is for debugging
+  # whoami:
+  #   # A container that exposes an API to show its IP address
+  #   image: traefik/whoami
+  #   labels:
+  #     - traefik.http.routers.whoami.rule=Host(`whoami.docker.localhost`)
+  #   networks:
+  #     - traefik-net
+
+networks:
+  traefik-net:
+    name: traefik-net
+    driver: overlay

@@ -1,0 +1,29 @@
+services:
+  synapse:
+    image: matrixdotorg/synapse:latest
+    environment:
+      - SYNAPSE_SERVER_NAME=matrix.kusala.tech
+      - SYNAPSE_REPORT_STATS=false
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.kusala-synapse.rule=Host(`matrix.kusala.tech`)
+      - traefik.http.services.kusala-synapse-service.loadbalancer.server.port=8008
+    volumes:
+      - ./synapse-data:/data
+    networks:
+      - traefik-net
+    # TODO: convert to configs
+    # configs:
+    #   - source: homeserver.yaml
+    #     target: /data/homeserver.yaml
+    #   - source: matrix.kusala.tech.log.config
+    #     target: /data/matrix.kusala.tech.log.config
+
+# configs:
+#    homeserver.yaml:
+#      file: ./synapse-data/homeserver.yaml
+#    matrix.kusala.tech.log.config:
+#      file: ./synapse-data/matrix.kusala.tech.log.config
+networks:
+  traefik-net:
+    external: true
